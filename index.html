@@ -1,15 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8" /> 
-</head>
-<body>
-<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-<script src="//www.jeneriz.com/blog.js"></script>
-Hello world!
--á é ñññ ÑÑÑ ¡¿!?
-<img class="picture" src="a" />
-<img class="picture" src="b" />
-<img src="c" />
-</body>
-</html>
+---
+layout: default
+title: Julio's blog
+full_posts: 3
+---
+
+{% for post in site.posts %}
+  {% if forloop.index < page.full_posts %}
+  <div class='post'>
+    <h1><a href='{{post.url}}'>{{post.title}}</a></h1>
+    <span class='date'>{{post.date | date_to_string}}</span>
+    <div class='body'>{{post.content}}</div>
+  </div>
+  {% else %}
+    {% if forloop.index == page.full_posts %}
+    <h2>Older Posts</h2>
+    <table class='post-list'>
+    {% endif %}
+      <tr>
+        <th><a href='{{ post.url }}'>{{ post.title }}</a></th>
+        <td>{{ post.date | date_to_string }}</td>
+      </tr>
+  {% endif %}
+{% endfor %}
+{% if site.posts == site.posts | size %}
+    </table>
+{% endif %}
