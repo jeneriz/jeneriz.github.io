@@ -7,7 +7,7 @@ tags:
 - pescado 
 - curso 
 ---
-El 31 de Octubre, Íñigo Aguirre, autor del blog de umami, daba un [curso sobre cómo tratar el pescado](http://www.umami-madrid.com/2015/10/13/taller-corte-preparacion-y-cocinado-de-pescado-fresco-gallego/) y decidí apuntarme. Estas son las notas que recuerdo por la noche, para evitar que se me olvide. Aunque lo mejor será practicarlo.
+El 31 de Octubre, Íñigo Aguirre, autor del blog de [umami](http://www.umami-madrid.com/), daba un [curso sobre cómo tratar el pescado](http://www.umami-madrid.com/2015/10/13/taller-corte-preparacion-y-cocinado-de-pescado-fresco-gallego/) y decidí apuntarme. Estas son las notas que recuerdo por la noche, para evitar que se me olvide. Aunque lo mejor será practicarlo.
 
 Ya había leído [cómo limpiar pescados pequeños](http://www.umami-madrid.com/2014/04/08/como-limpiar-pescaditos-pequenos/) de este autor y me había parecido interesante pero no me animaba. Lo que me faltaba era practicar. El taller me gustó mucho. Pudimos trabajar con una caballa cada uno y una lubina cada dos para coger experiencia, ques es como mejor se aprende. Y luego lo cocinamos, cada uno haciendo algo (voy a tener agujetas de exprimir docenas de limas), y comiéndolo. Estaba buenísimo. Ha cambiado mi apreciación de la caballa y creo que quiero aprender más sobre cómo preparar ceviches. El que hicimos me pareció simple de preparar pero muy rico.
 
@@ -102,13 +102,14 @@ La caballa así está espectacular, es muy importante dejarla crujiente. Los bro
 ##Recetas
 
 ### Cebiche de lubina
-Espectacular. La leche de tigre es el jugo que queda. Es mejor servir el ceviche sin ese jugo, salvo que se consuma al momento, ya que lo seguiría cocinando. Unos minutos cocinan el exterior del pescado, una noche garantiza que el centro queda también cocinado, pero es más interesante el contrate
+Espectacular. La leche de tigre es el jugo que queda después. Es mejor servir el ceviche sin ese jugo, salvo que se consuma al momento, ya que lo seguiría cocinando. Unos minutos cocinan el exterior del pescado, una noche garantiza que el centro queda también cocinado, pero es más interesante el contraste.
 
 #### Ingredientes
 - Lomos
 - Media cebolla roja
 
 Para la leche de tigre:
+
 - Chiles al gusto
 - Salsa de pescado
 - GMS
