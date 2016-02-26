@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Gas Logger</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+	</head>
+	<body>
+		<div class="container-fluid">
+			<h1>Log Gas</h1>
+
+			<form>
+				<div class="form-group">
+					<label for="km">km</label>
+					<input type="number" class="form-control" id="km" placeholder="100000" min="0">
+				</div>
+				<div class="form-group">
+					<label for="litters">Litters</label>
+					<input type="number" class="form-control" id="litters" placeholder="50" min="0">
+				</div>
+				<div class="form-group">
+					<label for="cost">Cost</label>
+					<input type="number" class="form-control" id="cost" min="0">
+				</div>
+				<div class="form-group">
+					<label for="cost_per_litter">Cost per litter</label>
+					<input type="number" class="form-control" id="cost_per_litter" min="0">
+					<p class="help-block">Feel free to override</p>
+				</div>
+				<div class="form-group">
+					<label for="when">When</label>
+					<input type="date" class="form-control" id="when"/>
+				</div>
+				<button id="log" type="submit" class="btn btn-default">Submit</button>
+			</form>
+		</div> 
+	</body>
+
+	<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<script src="https://api.trello.com/1/client.js?key=7a34d8245d49288679413d2fc5dc557a"></script>
+	<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+	<script type="text/javascript">
+		function update_cost_per_litter() {
+			var cost = $('#cost').val(); 
+			var litters = $('#litters').val();
+			if ($.isNumeric(cost) && $.isNumeric(litters)) {
+				var cost_per_litter = cost / litters;
+				$('#cost_per_litter').val((Math.round(cost_per_litter*100)/100).toFixed(2));
+			}
+		};
+
+		$( document ).ready(function() {
+			var authenticationSuccess = function() { console.log("Successful authentication"); };
+			var authenticationFailure = function() { console.log("Failed authentication"); };
+
+			Trello.authorize({
+				type: 'popup',
+				name: 'Getting Started Application',
+				scope: { read: true, write: true },
+				expiration: 'never',
+				success: authenticationSuccess,
+				error: authenticationFailure
+			});
+
+			var creationSuccess = function(data) {
+				console.log('Card created successfully. Data returned:' + JSON.stringify(data));
+			};
+
+			$('#when').datepicker();
+
+			$('#cost').change(update_cost_per_litter);
+			$('#litters').change(update_cost_per_litter);
+
+
+			$('#log').on('click', function(event) {
+				var myList = '5325e789bc9e29a92ae0c556'; 
+
+				var newCard = {
+					name: 'Gas on ' + $('#when').val(), 
+					desc: '{km:"'+$('#km').val()+'", litters:"'+$('#litters').val()+'", cost:"'+$('#cost').val()+'", cost_per_litter:"'+$('#cost_per_litter').val()+'", when:"'+$('#when').val()+'"}',
+					idList: myList,
+					pos: 'top', // Place this card at the top of our list 
+					due: $('#when').val()
+				};
+
+				//alert(newCard.desc);
+				Trello.post('/cards/', newCard, creationSuccess);
+				//Trello.put('/cards/56cf2f1c47d76e32b6c39454', { name: 'New Test Card2', due: new Date() });
+
+				event.preventDefault();
+			});
+
+		});
+	</script>
+</html>
