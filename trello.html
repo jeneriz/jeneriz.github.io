@@ -2,15 +2,16 @@
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Gas Logger</title>
+		<title>Logger</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 	</head>
 	<body>
-		<div class="container-fluid">
+		<div class="container">
+			Logged in to as <span id="fullName"></span> 
 			<h1>Log Gas</h1>
-
-			<form>
+			<form id="fields">
+				<!-- TODO generate them dynamically 
 				<div class="form-group">
 					<label for="km">km</label>
 					<input type="number" class="form-control" id="km" placeholder="100000" min="0">
@@ -32,7 +33,19 @@
 					<label for="when">When</label>
 					<input type="date" class="form-control" id="when"/>
 				</div>
+				-->
 				<button id="log" type="submit" class="btn btn-default">Submit</button>
+				<button id="success" type="button" class="btn btn-success">Success</button>
+				<button id="error" type="button" class="btn btn-danger">Error</button>
+
+				<div id="debug" ></div>
+			</form>
+
+			<form class="form-horizontal" id="boards_form">
+				<div class="form-group">
+					<label class="control-label">Choose your logger</label>
+					<select class="form-control" id="boards"></select>
+				</div>
 			</form>
 		</div> 
 	</body>
@@ -57,41 +70,149 @@
 			var authenticationFailure = function() { console.log("Failed authentication"); };
 
 			Trello.authorize({
+				//interactive:true,
 				type: 'popup',
-				name: 'Getting Started Application',
+				name: 'Logger',
 				scope: { read: true, write: true },
 				expiration: 'never',
 				success: authenticationSuccess,
 				error: authenticationFailure
 			});
 
+			var isLoggedIn = Trello.authorized();
+			if (!isLoggedIn) {
+				$("#fullName").text("Not logged in!");
+			} else {
+				Trello.members.get("me", function(member){
+					$("#fullName").text(member.fullName);
+				});
+			}
+
 			var creationSuccess = function(data) {
+				$('#success').show().delay(1000).fadeOut();
 				console.log('Card created successfully. Data returned:' + JSON.stringify(data));
 			};
 
+			var creationFailure = function(data) {
+				$('#error').show().delay(1000).fadeOut();
+				console.log('Card created without success. Data returned:' + JSON.stringify(data));
+			};
+
 			$('#when').datepicker();
+			$('#success').hide();
+			$('#error').hide();
 
 			$('#cost').change(update_cost_per_litter);
 			$('#litters').change(update_cost_per_litter);
 
-
 			$('#log').on('click', function(event) {
-				var myList = '5325e789bc9e29a92ae0c556'; 
+				//myList = '56d09addbdd5ec38630be2f8'; // TODO TODO TODO this if the first thing to remove!!! have selected_list, from url
+				//var fieldIds = ['km', 'litters', 'cost', 'cost_per_litter', 'when'];
 
+				var desc = {};
+
+				var index, len;
+				for (index = 0, len = fieldIds.length; index < len; ++index) {
+					desc[fieldIds[index]] = $('#' + fieldIds[index]).val();
+				}
+
+				var name = metadata.title;
 				var newCard = {
-					name: 'Gas on ' + $('#when').val(), 
-					desc: '{km:"'+$('#km').val()+'", litters:"'+$('#litters').val()+'", cost:"'+$('#cost').val()+'", cost_per_litter:"'+$('#cost_per_litter').val()+'", when:"'+$('#when').val()+'"}',
+					name: name, //'New Gas on ' + $('#when').val(), 
+					desc: JSON.stringify(desc),
 					idList: myList,
 					pos: 'top', // Place this card at the top of our list 
 					due: $('#when').val()
 				};
 
-				//alert(newCard.desc);
-				Trello.post('/cards/', newCard, creationSuccess);
+				//alert(JSON.stringify(desc));
+				alert(JSON.stringify(newCard));
+				Trello.post('/cards/', newCard, creationSuccess, creationFailure);
 				//Trello.put('/cards/56cf2f1c47d76e32b6c39454', { name: 'New Test Card2', due: new Date() });
 
 				event.preventDefault();
 			});
+
+			var debug = function(msg) {
+				console.log(msg);
+			}
+			var cardsLoaded = function(cards) {
+				fieldIds = []; // TODO global on purpose until I know how to set the properly
+				$.each(cards, function(index, value) {
+					if (value.name == "metadata") {
+						metadata = JSON.parse(value.desc); // TODO global on purpose
+						console.log(metadata);
+						myList = metadata.list.idList;
+						console.log(myList);
+					} else {
+						var fieldId = value.name.replace(/ /g,"_");
+						fieldIds.push(fieldId);
+						$('#fields')
+						.append($('<div class="form-group"> ' + 
+							'<label for="' + fieldId + '">' + value.name + '</label> ' + 
+							// TODO get from the metadata placeholder="50" min="0"
+							'<input type="number" class="form-control" id="' + fieldId + '" > ' +
+						'</div>')
+					//	.attr("value",value.id)
+					//	.text(value.name)
+						); 
+					}
+				});
+				console.log("fieldIds: " + fieldIds);
+			}
+			var listsLoaded = function(lists) {
+				if (lists[0].name != "Metadata") {
+					console.log("Setup error!");
+				} 
+
+				$.each(lists, function(index, value) {
+					console.log("list: ");
+					console.log(value);
+					if (value.name != "Metadata") {
+						$('#boards')
+						.append($("<option></option>")
+						.attr("value",value.id)
+						.text(value.name)); 
+					} 
+
+
+					// TODO allow changing 
+					var selectedLogger = "Gas";
+					if (value.name == selectedLogger) {
+						Trello.get('lists/' + value.id + '/cards', cardsLoaded, debug);
+					}
+				});
+			}
+
+			var boardsLoaded = function(boards) {
+				var index, len;
+				for (index = 0, len = boards.length; index < len; ++index) {
+					// TODO go to the Logger board, where there will be a list for each board
+					// first list is for metadata and the order is the order of the loggers for the customer
+					// display logger switcher at the bottom of the page
+					// (example of <option> in http://blog.getcorrello.com/2015/10/14/build-your-own-dashboard-on-the-trello-api/)
+					// order of the lists doesn't matter, inside the list are the cards where each one represents a html element
+					// types of elements: buttons with just an action (baby got to sleep), fields, buttons that log some fields
+					// for display, I'd keep it simple with just one size, maybe two (half and full screen width)
+					// any kind of schema validation is for the future
+					// any kind of input validation is for the future
+					// don't forget to add versioning to the schemas. maybe not now but not too far into the future, at least the field
+					// first card of the list is the title of the card. how could it be button dependent? 
+					// second is the due date. could be optional.
+					// order shouldn't matter, those should be retrieved by name
+					// rest of cards is a map of the fields the button relies on, encoded in json
+					// cards support pictures... but that's for the future
+					// everything in the metadata board logger_metadata must be entered by hand
+					// date fields need to allow for time. specially when we're logging "now"
+
+					// if (boards[index].name.startsWith("L_")) {
+					if (boards[index].name == "logger_metadata") {
+						console.log(boards[index]);
+						Trello.get('/boards/' + boards[index].id + '/lists', listsLoaded, debug);
+					} 
+				}
+			}
+			Trello.get('/member/me/boards', boardsLoaded, debug);
 
 		});
 	</script>
